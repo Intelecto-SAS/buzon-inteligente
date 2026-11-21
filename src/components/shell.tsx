@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ModuleKey, Role } from "@/lib/security/permissions";
 
 const ITEMS: { href: string; key: ModuleKey; label: string }[] = [
@@ -24,23 +24,39 @@ export function Shell({ role, name, org, email, unread, children, modules }: { r
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const visible = ITEMS.filter((item) => modules.includes(item.key));
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   return (
-    <div className="min-h-screen md:grid md:grid-cols-[240px_1fr]">
-      <button className="m-3 h-9 rounded-control border border-line bg-white px-3 text-sm md:hidden" type="button" onClick={() => setOpen(true)} aria-expanded={open}>
-        Menú
-      </button>
-      {open ? <button className="fixed inset-0 z-20 bg-ink/20 md:hidden" aria-label="Cerrar menú" onClick={() => setOpen(false)} /> : null}
-      <nav className={`shell-nav flex flex-col border-r border-line bg-white md:static md:translate-x-0 ${open ? "open" : ""}`} aria-label="Módulos">
-        <div className="border-b border-line px-4 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-faint">Buzón Inteligente</p>
-          <p className="mt-1 text-sm font-semibold">{org}</p>
+    <div className="min-h-screen">
+      {open ? <button className="fixed inset-0 z-30 bg-ink/20" aria-label="Cerrar menú" onClick={() => setOpen(false)} /> : null}
+      <nav id="menu-modulos" className={`shell-nav flex flex-col border-r border-line bg-white ${open ? "open" : ""}`} aria-label="Módulos" aria-hidden={!open}>
+        <div className="flex items-start justify-between border-b border-line px-4 py-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-faint">Buzón Inteligente</p>
+            <p className="mt-1 text-sm font-semibold">{org}</p>
+          </div>
+          <button className="h-8 rounded-control px-2 text-sm text-muted hover:bg-canvas" type="button" onClick={() => setOpen(false)} aria-label="Cerrar menú">
+            Cerrar
+          </button>
         </div>
         <ul className="flex-1 overflow-y-auto py-2">
           {visible.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <li key={item.href}>
-                <Link href={item.href} aria-current={active ? "page" : undefined} onClick={() => setOpen(false)} className={`block px-4 py-2 text-sm ${active ? "bg-primary font-semibold text-white" : "text-muted hover:bg-canvas"}`}>
+                <Link href={item.href} aria-current={active ? "page" : undefined} tabIndex={open ? 0 : -1} onClick={() => setOpen(false)} className={`block px-4 py-2 text-sm ${active ? "bg-primary font-semibold text-white" : "text-muted hover:bg-canvas"}`}>
                   {item.label}
                 </Link>
               </li>
@@ -49,8 +65,16 @@ export function Shell({ role, name, org, email, unread, children, modules }: { r
         </ul>
       </nav>
       <div className="min-w-0">
-        <header className="flex items-center justify-between gap-3 border-b border-line bg-white px-4 py-3 md:px-6">
-          <p className="text-sm text-muted">Plataforma de gestión de comunicaciones</p>
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-line bg-white px-4 py-3 md:px-6">
+          <div className="flex items-center gap-3">
+            <button className="inline-flex h-9 w-9 items-center justify-center rounded-control border border-line bg-white" type="button" aria-expanded={open} aria-controls="menu-modulos" onClick={() => setOpen((value) => !value)}>
+              <span className="sr-only">{open ? "Cerrar menú" : "Abrir menú"}</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" />
+              </svg>
+            </button>
+            <p className="hidden text-sm text-muted sm:block">Plataforma de gestión de comunicaciones</p>
+          </div>
           <div className="flex items-center gap-4 text-sm">
             <Link href="/alertas" className="text-muted" aria-label={`Notificaciones, ${unread} sin leer`}>
               Alertas <span className="font-semibold text-ink">{unread}</span>

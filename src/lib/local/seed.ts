@@ -150,7 +150,8 @@ export function buildWorkspace(): Record<string, Row[]> {
   const drafts: Row[] = [];
   const analyses: Row[] = [];
 
-  MAILS.forEach((mail, index) => {
+  const corpus = [...MAILS, ...generatedVolume()];
+  corpus.forEach((mail, index) => {
     const n = String(index + 1).padStart(6, "0");
     const messageId = `0b1e0a10-aaaa-4111-8111-${n}`;
     const caseId = `0b1e0a10-bbbb-4111-8111-${n}`;
@@ -290,3 +291,44 @@ export function buildWorkspace(): Record<string, Row[]> {
 }
 
 export const LOCAL_USER = { id: LAURA, email: "laura.mendez@supersociedades.gov.co" };
+
+function generatedVolume(): Mail[] {
+  const staff = [LAURA, CARLOS, DIANA, ANDRES, CAMILA, null];
+  const cities = ["Bogotá", "Medellín", "Cali", "Barranquilla", "Bucaramanga", "Cartagena"];
+  const firms = ["Inversiones Andinas", "Logística Pacífico", "Constructora Andina", "Agroindustria del Valle", "Cafeteros del Quindío", "Tecnología Digital"];
+  const patterns: Array<Pick<Mail, "category" | "priority" | "sensitive"> & { subject: (n: number) => string; from: string; name: string; body: string; explanation: string }> = [
+    { category: CAT.tutelas, priority: "critica", sensitive: true, from: "jdo@cendoj.ramajudicial.gov.co", name: "Juzgado Civil del Circuito", subject: (n) => `Acción de tutela ${2026}-${String(1800 + n)} — ${cities[n % cities.length]}`, body: "Se admite acción de tutela y se corre traslado para informe. El término citado queda pendiente de confirmación.", explanation: "«Acción de tutela» en asunto (peso 3). Prioridad crítica y caso asignado por menor carga." },
+    { category: CAT.tutelas, priority: "critica", sensitive: true, from: "desacato@cendoj.ramajudicial.gov.co", name: "Secretaría de tutela", subject: (n) => `Incidente de desacato — expediente ${110010000 + n}`, body: "Requiere informar el cumplimiento de la orden, so pena de continuar el incidente.", explanation: "«Incidente de desacato» en asunto (peso 4). Alerta al responsable y a la supervisión." },
+    { category: CAT.peticion, priority: "alta", from: "peticiones@ciudadano.gov.co", name: "Peticionario", subject: (n) => `Derecho de petición — ${firms[n % firms.length]} — radicado ${4000 + n}`, body: "Solicito información sobre el estado del trámite y copia de las actuaciones.", explanation: "«Derecho de petición» en asunto (peso 3). Plazo interno de 24 horas. El plazo legal no se fijó solo." },
+    { category: CAT.judicial, priority: "alta", sensitive: true, from: "notif.judicial@notificaciones.ramajudicial.gov.co", name: "Notificaciones judiciales", subject: (n) => `Notificación judicial — oficio ${9000 + n} — ${cities[n % cities.length]}`, body: "Se notifica providencia y se requiere respuesta de la entidad vinculada.", explanation: "«Notificación judicial» en asunto (peso 3) y dominio judicial (peso 2)." },
+    { category: CAT.facturacion, priority: "normal", from: "facturacion@proveedor.com.co", name: "Facturación proveedor", subject: (n) => `Factura electrónica FE-${88000 + n}`, body: "Se expide factura electrónica por servicios del periodo.", explanation: "«Factura electrónica» en asunto (peso 2). Prioridad normal de la categoría." },
+    { category: CAT.contratacion, priority: "normal", from: "contratos@proveedor.com.co", name: "Gestión contractual", subject: (n) => `Observaciones al contrato ${2026}-${String(100 + n).padStart(3, "0")}`, body: "Se remiten observaciones a la minuta y a la póliza.", explanation: "«Contrato» en asunto (peso 2). Sin términos judiciales." },
+    { category: null, priority: null, from: "boletin@camarabogota.org", name: "Cámara de Comercio", subject: (n) => `Invitación institucional ${n + 1}`, body: "Convocatoria a un evento. Ninguna regla de trámite alcanzó el puntaje mínimo.", explanation: "Ninguna regla activa alcanzó el puntaje mínimo. Quedó sin clasificar." },
+  ];
+  const statuses = ["asignado", "en_gestion", "pendiente_informacion", "pendiente_aprobacion", "respondido", "sin_asignar", "cerrado"];
+  return Array.from({ length: 220 }, (_, index) => {
+    const pattern = patterns[index % patterns.length];
+    const assignee = pattern.category ? staff[index % staff.length] : null;
+    const status = assignee ? statuses[index % 5] : pattern.category ? "sin_asignar" : "pendiente_clasificacion";
+    const hours = 3 + index * 4;
+    const overdue = index % 19 === 0 && pattern.priority === "alta";
+    return {
+      hoursAgo: hours,
+      unread: index % 4 === 0,
+      subject: pattern.subject(index),
+      from: pattern.from.replace("@", `${index % 7}@`),
+      name: `${pattern.name} ${cities[index % cities.length]}`,
+      body: pattern.body,
+      category: pattern.category,
+      priority: pattern.priority,
+      sensitive: pattern.sensitive,
+      assignee,
+      status,
+      dueStatus: overdue ? "confirmed" : index % 6 === 0 ? "confirmed" : "pending_validation",
+      due: overdue ? hoursAgo(6) : index % 6 === 0 ? hoursAhead(30 + (index % 40)) : null,
+      attachments: index % 8 === 0 ? [`Anexo-${index + 1}.pdf`] : undefined,
+      explanation: pattern.explanation,
+      needsReply: status !== "cerrado" && status !== "respondido",
+    };
+  });
+}
