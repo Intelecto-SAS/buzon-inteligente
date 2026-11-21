@@ -9,4 +9,5 @@ dist
 .vercel
 .DS_Store
 coverage
+.data
 tsconfig.tsbuildinfo

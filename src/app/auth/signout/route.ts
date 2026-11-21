@@ -4,5 +4,6 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const supabase = await createUserClient();
   await supabase?.auth.signOut();
-  return NextResponse.redirect(new URL("/login", request.url), { status: 303 });
+  const target = process.env.NEXT_PUBLIC_SUPABASE_URL ? "/login" : "/dashboard";
+  return NextResponse.redirect(new URL(target, request.url), { status: 303 });
 }
