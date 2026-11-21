@@ -23,12 +23,24 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const { data } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    const redirect = request.nextUrl.clone();
+    redirect.pathname = "/login";
+    const response = NextResponse.redirect(redirect);
+    for (const cookie of request.cookies.getAll()) {
+      if (cookie.name.startsWith("sb-")) response.cookies.set(cookie.name, "", { path: "/", maxAge: 0 });
+    }
+    return response;
+  }
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((item) => path === item || path.startsWith("/invitar"));
   const isAsset = path.startsWith("/_next") || path.startsWith("/api/webhooks") || path.startsWith("/api/inngest") || path.startsWith("/api/health");
 
-  if (!data.user && !isPublic && !isAsset && path !== "/") {
+  if (!user && !isPublic && !isAsset && path !== "/") {
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/login";
     return NextResponse.redirect(redirect);

@@ -17,8 +17,13 @@ export async function getSession(): Promise<AppSession> {
   if (!supabase) {
     return { configured: false, userId: null, email: null, fullName: null, orgId: null, orgName: null, timezone: "America/Bogota", role: null };
   }
-  const { data } = await supabase.auth.getUser();
-  const user = data.user;
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    return { configured: true, userId: null, email: null, fullName: null, orgId: null, orgName: null, timezone: "America/Bogota", role: null };
+  }
   if (!user) {
     return { configured: true, userId: null, email: null, fullName: null, orgId: null, orgName: null, timezone: "America/Bogota", role: null };
   }

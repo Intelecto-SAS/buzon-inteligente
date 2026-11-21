@@ -37,11 +37,11 @@ const ACCESS: Record<Role, { view: ModuleKey[]; mutate: ModuleKey[] }> = {
 };
 
 export function canViewModule(role: Role, module: ModuleKey): boolean {
-  return ACCESS[role].view.includes(module);
+  return ACCESS[role]?.view.includes(module) ?? false;
 }
 
 export function canMutateModule(role: Role, module: ModuleKey): boolean {
-  return ACCESS[role].mutate.includes(module);
+  return ACCESS[role]?.mutate.includes(module) ?? false;
 }
 
 export function canDowngradeCritical(role: Role): boolean {
