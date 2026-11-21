@@ -23,10 +23,21 @@ async function connectedClient() {
   });
 }
 
+async function remoteHasNoMessages(): Promise<boolean> {
+  try {
+    const remote = await connectedClient();
+    const { count, error } = await remote.from("messages").select("id", { count: "exact", head: true });
+    if (error) return true;
+    return (count ?? 0) === 0;
+  } catch {
+    return true;
+  }
+}
+
 export async function createUserClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return createLocalClient() as unknown as Awaited<ReturnType<typeof connectedClient>>;
+  if (!url || !key || (await remoteHasNoMessages())) return createLocalClient() as unknown as Awaited<ReturnType<typeof connectedClient>>;
   return connectedClient();
 }
 
