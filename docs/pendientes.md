@@ -2,7 +2,7 @@
 
 Estas piezas no se simulan en la interfaz.
 
-- Proyecto Supabase, migraciones aplicadas y usuario inicial. Sin eso la aplicación muestra la lista de variables faltantes.
+- Proyecto Supabase, migraciones aplicadas y usuario inicial. Mientras esas variables no existan, la aplicación usa el registro local del buzón `legal@supersociedades.gov.co` en `.data/workspace.json`. Al configurar Supabase, ese registro deja de usarse.
 - Consentimiento de administrador en Entra ID y, para buzones compartidos, permiso de aplicación con Application Access Policy.
 - Verificación de Google si el producto sale del modo de prueba. Publicación del tema Pub/Sub.
 - Claves de Inngest en el entorno desplegado. Sin ellas no hay cron de recuperación ni de vencimientos.
