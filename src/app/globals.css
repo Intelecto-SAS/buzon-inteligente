@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #962d46;
+  --color-primary-hover: #7d2339;
+  --color-primary-active: #641b2d;
+  --color-canvas: #f8f9fb;
+  --color-surface: #ffffff;
+  --color-ink: #18181b;
+  --color-muted: #52525b;
+  --color-faint: #71717a;
+  --color-line: #e4e4e7;
+  --color-success: #15803d;
+  --color-success-bg: #ecfdf5;
+  --color-warning: #b45309;
+  --color-warning-bg: #fffbeb;
+  --color-danger: #b91c1c;
+  --color-danger-bg: #fef2f2;
+  --color-info: #1d4ed8;
+  --color-info-bg: #eff6ff;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --radius-control: 4px;
+  --radius-container: 6px;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.table-wrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; min-width: 920px; }
+table.data th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+  background: var(--color-canvas);
+  border-bottom: 1px solid var(--color-line);
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+table.data td {
+  border-bottom: 1px solid var(--color-line);
+  padding: 8px 10px;
+  font-size: 13px;
+  vertical-align: top;
+}
+table.data tr:hover td { background: #f3f4f6; }
+.tabs { display: flex; gap: 0; overflow-x: auto; border-bottom: 1px solid var(--color-line); }
+.tabs a, .tabs button {
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  text-decoration: none;
+}
+.tabs a[aria-current="page"], .tabs button[aria-pressed="true"] {
+  color: var(--color-ink);
+  border-bottom-color: var(--color-primary);
+}
+@media (max-width: 1023px) {
+  .shell-nav { position: fixed; inset: 0 auto 0 0; transform: translateX(-105%); z-index: 30; }
+  .shell-nav.open { transform: none; }
+}
