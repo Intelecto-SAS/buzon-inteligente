@@ -3,11 +3,10 @@
 import { FormEvent, useState } from "react";
 import { createBrowserSupabase } from "@/lib/supabase/browser";
 import { Button, Field, inputClass } from "@/components/ui";
-import Link from "next/link";
+import { AuthLink, AuthScreen } from "@/components/auth-screen";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -32,50 +31,29 @@ export default function LoginPage() {
     window.location.href = "/";
   }
 
-  async function signUp(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const supabase = createBrowserSupabase();
-    if (!supabase) {
-      setError("Supabase no está configurado.");
-      return;
-    }
-    const { error: signError } = await supabase.auth.signUp({
-      email: String(form.get("email") || ""),
-      password: String(form.get("password") || ""),
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-        data: { full_name: String(form.get("name") || "") },
-      },
-    });
-    if (signError) setError(signError.message);
-    else setInfo("Si el proyecto exige confirmación, abra el enlace del correo. Ese enlace vuelve a este mismo sitio.");
-  }
-
   return (
-    <main className="mx-auto grid min-h-screen max-w-5xl items-center gap-10 px-6 py-12 md:grid-cols-2">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-primary">Comunicaciones institucionales</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">Buzón Inteligente</h1>
-        <p className="mt-3 text-sm text-muted">Clasificación parametrizada, casos, plazos y trazabilidad. El acceso usa Supabase Auth. No existen credenciales embebidas.</p>
-      </div>
-      <div className="rounded-container border border-line bg-white p-6">
-        <form onSubmit={onSubmit} className="space-y-3">
-          <Field label="Correo"><input className={inputClass} name="email" type="email" autoComplete="username" required /></Field>
-          <Field label="Contraseña"><input className={inputClass} name="password" type="password" autoComplete="current-password" required /></Field>
-          {error ? <p className="text-sm text-danger" role="alert">{error}</p> : null}
-          {info ? <p className="text-sm text-muted" role="status">{info}</p> : null}
-          <Button disabled={pending} type="submit">{pending ? "Ingresando…" : "Ingresar"}</Button>
-        </form>
-        <form onSubmit={signUp} className="mt-6 space-y-3 border-t border-line pt-4">
-          <p className="text-sm font-semibold">Crear acceso</p>
-          <Field label="Nombre"><input className={inputClass} name="name" required /></Field>
-          <Field label="Correo"><input className={inputClass} name="email" type="email" required /></Field>
-          <Field label="Contraseña"><input className={inputClass} name="password" type="password" minLength={8} required /></Field>
-          <Button variant="secondary" type="submit">Registrar cuenta</Button>
-        </form>
-        <p className="mt-4 text-sm"><Link className="text-primary" href="/recuperar">Recuperar contraseña</Link></p>
-      </div>
-    </main>
+    <AuthScreen
+      title="Iniciar sesión"
+      subtitle="Use el correo institucional con el que quedó registrada su cuenta."
+      footer={
+        <p>
+          ¿Aún no tiene cuenta? <AuthLink href="/registro">Crear acceso</AuthLink>
+        </p>
+      }
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
+        <Field label="Correo">
+          <input className={`${inputClass} h-11 px-3`} name="email" type="email" autoComplete="username" placeholder="nombre@supersociedades.gov.co" required />
+        </Field>
+        <Field label="Contraseña">
+          <input className={`${inputClass} h-11 px-3`} name="password" type="password" autoComplete="current-password" required />
+        </Field>
+        <div className="flex justify-end">
+          <AuthLink href="/recuperar">Olvidé mi contraseña</AuthLink>
+        </div>
+        {error ? <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger" role="alert">{error}</p> : null}
+        <Button className="h-11 w-full rounded-lg" disabled={pending} type="submit">{pending ? "Ingresando…" : "Ingresar"}</Button>
+      </form>
+    </AuthScreen>
   );
 }
