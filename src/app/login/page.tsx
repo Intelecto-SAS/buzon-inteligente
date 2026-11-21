@@ -43,10 +43,13 @@ export default function LoginPage() {
     const { error: signError } = await supabase.auth.signUp({
       email: String(form.get("email") || ""),
       password: String(form.get("password") || ""),
-      options: { data: { full_name: String(form.get("name") || "") } },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: { full_name: String(form.get("name") || "") },
+      },
     });
     if (signError) setError(signError.message);
-    else setInfo("Si el proyecto exige confirmación, revise el correo antes de entrar. No hay una cuenta administradora predefinida.");
+    else setInfo("Si el proyecto exige confirmación, abra el enlace del correo. Ese enlace vuelve a este mismo sitio.");
   }
 
   return (

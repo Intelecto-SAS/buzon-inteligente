@@ -5,7 +5,7 @@
 3. Copie la clave `service_role` a `SUPABASE_SERVICE_ROLE_KEY`. Solo la usa el servidor: webhooks, Inngest y el alta inicial. No llega al navegador.
 4. Ejecute las migraciones `0001_schema.sql` y `0002_rls.sql`.
 5. El trigger `on_auth_user_created` crea la fila de `profiles`.
-6. Active confirmación de correo si la política de la entidad lo exige.
+6. Active confirmación de correo si la política de la entidad lo exige. En Authentication → URL Configuration, ponga Site URL en el origen real de la aplicación (no `http://localhost:3000`, salvo que trabaje solo en su máquina) y agregue `{APP_URL}/auth/callback` a Redirect URLs. El correo de confirmación usa esa lista. Un enlace ya enviado sigue apuntando a la Site URL que estaba vigente cuando se generó: después de corregirla, registre de nuevo o reenvíe la confirmación.
 7. Cree un bucket privado `adjuntos` cuando vaya a guardar binarios. La metadata del adjunto ya se registra; la descarga del binario queda pendiente de esa carga.
 8. Genere `CREDENTIALS_ENCRYPTION_KEY` con `openssl rand -base64 32`. Los tokens OAuth se guardan cifrados con AES-256-GCM en `mailbox_credentials`. Las políticas impiden que el rol `authenticated` lea esa tabla.
 
