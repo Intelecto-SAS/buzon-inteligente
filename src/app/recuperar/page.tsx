@@ -14,7 +14,7 @@ export default function RecoverPage() {
       return;
     }
     const email = String(new FormData(event.currentTarget).get("email") || "");
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/login` });
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth/callback` });
     setMessage(error ? error.message : "Si el correo existe, Supabase enviará el enlace de recuperación.");
   }
   return (
