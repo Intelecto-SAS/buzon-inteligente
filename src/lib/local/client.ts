@@ -46,8 +46,12 @@ function load(): Tables {
 
 function persist() {
   if (!memory) return;
-  fs.mkdirSync(path.dirname(FILE), { recursive: true });
-  fs.writeFileSync(FILE, JSON.stringify(memory));
+  try {
+    fs.mkdirSync(path.dirname(FILE), { recursive: true });
+    fs.writeFileSync(FILE, JSON.stringify(memory));
+  } catch {
+    // En Vercel el disco es de solo lectura. El registro queda en memoria del proceso.
+  }
 }
 
 function pick(row: Row, fields: string[]): Row {

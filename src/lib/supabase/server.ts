@@ -23,21 +23,14 @@ async function connectedClient() {
   });
 }
 
-async function remoteHasNoMessages(): Promise<boolean> {
-  try {
-    const remote = await connectedClient();
-    const { count, error } = await remote.from("messages").select("id", { count: "exact", head: true });
-    if (error) return true;
-    return (count ?? 0) === 0;
-  } catch {
-    return true;
-  }
-}
-
 export async function createUserClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key || (await remoteHasNoMessages())) return createLocalClient() as unknown as Awaited<ReturnType<typeof connectedClient>>;
+  // El buzón operativo se lee en memoria. No se consulta el schema cache de PostgREST en cada página:
+  // mientras no hay buzón remoto conectado, ese error (PGRST205) dejaba la sesión sin organización.
+  if (!url || !key || process.env.USE_REMOTE_MAILBOX !== "true") {
+    return createLocalClient() as unknown as Awaited<ReturnType<typeof connectedClient>>;
+  }
   return connectedClient();
 }
 
