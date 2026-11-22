@@ -4,6 +4,24 @@ import { canReadAudit } from "@/lib/security/permissions";
 import { notFound } from "next/navigation";
 import { EmptyState, PageHeader, Panel } from "@/components/ui";
 
+const ACTION_LABEL: Record<string, string> = {
+  "case.transition": "Transición de tarea",
+  "case.assigned": "Asignación de tarea",
+  "case.priority": "Prioridad de tarea",
+  "classification.manual": "Clasificación manual",
+  "automation.created": "Regla creada",
+  "organization.created": "Organización creada",
+  "mailbox.connected": "Buzón conectado",
+};
+
+const RESOURCE_LABEL: Record<string, string> = {
+  case: "Tarea",
+  message: "Mensaje",
+  automation_rule: "Regla",
+  organization: "Organización",
+  mailbox: "Buzón",
+};
+
 export default async function AuditPage() {
   const session = await getSession();
   if (!canReadAudit(session.role!)) notFound();
@@ -21,8 +39,8 @@ export default async function AuditPage() {
                 {(data || []).map((row) => (
                   <tr key={row.id}>
                     <td>{new Date(row.created_at).toLocaleString("es-CO", { timeZone: session.timezone })}</td>
-                    <td>{row.action}</td>
-                    <td>{row.resource_type} {row.resource_id}</td>
+                    <td>{ACTION_LABEL[row.action] || row.action}</td>
+                    <td>{RESOURCE_LABEL[row.resource_type] || row.resource_type} {row.resource_id}</td>
                     <td>{row.result}</td>
                     <td>{row.actor_id || "sistema"}</td>
                   </tr>

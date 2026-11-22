@@ -81,7 +81,7 @@ export async function processInboundMessage(
         needsHumanReview: false,
         conflict: false,
         unclassified: false,
-        explanation: "El mensaje ya estaba registrado. No se creó otro caso ni se reenvió.",
+        explanation: "El mensaje ya estaba registrado. No se creó otra tarea ni se reenvió.",
         scores: [],
       },
     };
@@ -147,8 +147,8 @@ export async function processInboundMessage(
       dedupeKey: `unassigned:${caseId}`,
       kind: "sin_responsable",
       severity: decision.priority === "critica" || decision.sensitiveLegal ? "critica" : "alta",
-      title: "Caso sin responsable",
-      body: "El caso permanece sin responsable autorizado.",
+      title: "Tarea sin responsable",
+      body: "La tarea permanece sin responsable autorizado.",
       messageId: stored.id,
       caseId,
     });

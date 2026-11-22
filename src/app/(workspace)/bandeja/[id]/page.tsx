@@ -54,7 +54,7 @@ export default async function MessagePage({ params }: { params: Promise<{ id: st
           </label>
           {cats.length === 0 ? <EmptyState title="Sin categorías" body="Cree una categoría antes de clasificar manualmente." /> : <button className="mt-3 h-9 rounded-control bg-primary px-3 text-white" type="submit">Guardar decisión</button>}
         </form>
-        {message.case_id ? <a className="block text-sm font-semibold text-primary" href={`/casos/${message.case_id}`}>Abrir caso</a> : null}
+        {message.case_id ? <a className="block text-sm font-semibold text-primary" href={`/casos/${message.case_id}`}>Abrir tarea</a> : null}
       </aside>
     </div>
   );
