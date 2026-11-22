@@ -5,6 +5,7 @@ import { createUserClient } from "@/lib/supabase/server";
 import { canManageConfiguration } from "@/lib/security/permissions";
 import { Badge, Button, EmptyState, PageHeader } from "@/components/ui";
 import Link from "next/link";
+import { humanize } from "@/lib/labels";
 
 const TONE = { connected: "success", syncing: "info", error: "danger", paused: "warning", authorization_required: "warning", disconnected: "neutral" } as const;
 
@@ -34,7 +35,7 @@ export default async function MailboxesPage({ searchParams }: { searchParams: Pr
             <li key={mailbox.id} className="rounded-container border border-line bg-white p-4 text-sm">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-semibold">{mailbox.display_name}</p>
-                <Badge tone={TONE[mailbox.status as keyof typeof TONE] || "neutral"}>{mailbox.status}</Badge>
+                <Badge tone={TONE[mailbox.status as keyof typeof TONE] || "neutral"}>{humanize(mailbox.status)}</Badge>
               </div>
               <p>{mailbox.email_address} · {mailbox.provider}</p>
               <p className="text-muted">Última sincronización: {mailbox.last_sync_at ? new Date(mailbox.last_sync_at).toLocaleString("es-CO", { timeZone: session.timezone }) : "aún no ocurre"}</p>

@@ -8,7 +8,7 @@ import type { ModuleKey, Role } from "@/lib/security/permissions";
 const ITEMS: { href: string; key: ModuleKey; label: string }[] = [
   { href: "/dashboard", key: "dashboard", label: "Dashboard" },
   { href: "/bandeja", key: "bandeja", label: "Bandeja inteligente" },
-  { href: "/casos", key: "casos", label: "Gestión de casos" },
+  { href: "/casos", key: "casos", label: "Tareas" },
   { href: "/alertas", key: "alertas", label: "Alertas" },
   { href: "/automatizaciones", key: "automatizaciones", label: "Automatizaciones" },
   { href: "/categorias", key: "categorias", label: "Categorías" },
@@ -23,32 +23,52 @@ const ITEMS: { href: string; key: ModuleKey; label: string }[] = [
 export function Shell({ role, name, org, email, unread, children, modules }: { role: Role; name: string; org: string; email: string; unread: number; modules: ModuleKey[]; children: React.ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [pinned, setPinned] = useState(false);
   const visible = ITEMS.filter((item) => modules.includes(item.key));
 
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+    if (window.localStorage.getItem("nav-pinned") === "1") {
+      setPinned(true);
+      setOpen(true);
+    }
+  }, []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!pinned) setOpen(false);
+  }, [pathname, pinned]);
+
+  useEffect(() => {
+    if (!open || pinned) return;
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") setOpen(false);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [open, pinned]);
+
+  function pin() {
+    setPinned(true);
+    setOpen(true);
+    window.localStorage.setItem("nav-pinned", "1");
+  }
+
+  function collapse() {
+    setPinned(false);
+    setOpen(false);
+    window.localStorage.setItem("nav-pinned", "0");
+  }
 
   return (
-    <div className="min-h-screen">
-      {open ? <button className="fixed inset-0 z-30 bg-ink/20" aria-label="Cerrar menú" onClick={() => setOpen(false)} /> : null}
-      <nav id="menu-modulos" className={`shell-nav flex flex-col border-r border-line bg-white ${open ? "open" : ""}`} aria-label="Módulos" aria-hidden={!open}>
+    <div className={pinned ? "min-h-screen md:grid md:grid-cols-[280px_minmax(0,1fr)]" : "min-h-screen"}>
+      {open && !pinned ? <button className="fixed inset-0 z-30 bg-ink/20" aria-label="Cerrar menú" onClick={collapse} /> : null}
+      <nav id="menu-modulos" className={`shell-nav flex flex-col border-r border-line bg-white ${open ? "open" : ""} ${pinned ? "pinned" : ""}`} aria-label="Módulos" aria-hidden={!open}>
         <div className="flex items-start justify-between border-b border-line px-4 py-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-faint">Buzón Inteligente</p>
             <p className="mt-1 text-sm font-semibold">{org}</p>
           </div>
-          <button className="h-8 rounded-control px-2 text-sm text-muted hover:bg-canvas" type="button" onClick={() => setOpen(false)} aria-label="Cerrar menú">
-            Cerrar
+          <button className="h-8 rounded-control px-2 text-sm text-muted hover:bg-canvas" type="button" onClick={pinned ? collapse : pin}>
+            {pinned ? "Contraer" : "Fijar"}
           </button>
         </div>
         <ul className="flex-1 overflow-y-auto py-2">
@@ -56,7 +76,7 @@ export function Shell({ role, name, org, email, unread, children, modules }: { r
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <li key={item.href}>
-                <Link href={item.href} aria-current={active ? "page" : undefined} tabIndex={open ? 0 : -1} onClick={() => setOpen(false)} className={`block px-4 py-2 text-sm ${active ? "bg-primary font-semibold text-white" : "text-muted hover:bg-canvas"}`}>
+                <Link href={item.href} aria-current={active ? "page" : undefined} tabIndex={open ? 0 : -1} onClick={() => { if (!pinned) setOpen(false); }} className={`block px-4 py-2 text-sm ${active ? "bg-primary font-semibold text-white" : "text-muted hover:bg-canvas"}`}>
                   {item.label}
                 </Link>
               </li>
@@ -67,7 +87,7 @@ export function Shell({ role, name, org, email, unread, children, modules }: { r
       <div className="min-w-0">
         <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-line bg-white px-4 py-3 md:px-6">
           <div className="flex items-center gap-3">
-            <button className="inline-flex h-9 w-9 items-center justify-center rounded-control border border-line bg-white" type="button" aria-expanded={open} aria-controls="menu-modulos" onClick={() => setOpen((value) => !value)}>
+            <button className="inline-flex h-9 w-9 items-center justify-center rounded-control border border-line bg-white" type="button" aria-expanded={open} aria-controls="menu-modulos" onClick={() => (open ? collapse() : setOpen(true))}>
               <span className="sr-only">{open ? "Cerrar menú" : "Abrir menú"}</span>
               <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
                 <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" />

@@ -101,7 +101,7 @@ export function buildWorkspace(): Record<string, Row[]> {
     [JULIAN, "Julián Restrepo", "julian.restrepo@supersociedades.gov.co", "auditor"],
   ] as const;
 
-  const profiles = people.map(([id, full_name]) => ({ id, full_name }));
+  const profiles = people.map(([id, full_name, email]) => ({ id, full_name, email }));
   const memberships = people.map(([id, , , role]) => ({ id: `m-${id}`, org_id: ORG, user_id: id, role, status: "active" }));
 
   const categories = [

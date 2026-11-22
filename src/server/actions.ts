@@ -236,6 +236,27 @@ export async function acceptInvitation(formData: FormData) {
   redirect("/dashboard");
 }
 
+export async function updateMemberRole(formData: FormData) {
+  const session = await requireSession();
+  if (!canManageConfiguration(session.role!)) throw new Error("Sin permiso.");
+  const userId = String(formData.get("userId") || "");
+  const role = String(formData.get("role") || "");
+  if (!["administrador", "supervisor", "usuario", "auditor"].includes(role)) throw new Error("Rol no válido.");
+  const supabase = await createUserClient();
+  await supabase!.from("memberships").update({ role }).eq("user_id", userId).eq("org_id", session.orgId);
+  const service = createServiceClient();
+  const admin = (service as { auth?: { admin?: { updateUserById: (id: string, attrs: { app_metadata: Record<string, string> }) => Promise<unknown> } } }).auth?.admin;
+  if (admin) {
+    try {
+      await admin.updateUserById(userId, { app_metadata: { org_role: role } });
+    } catch {
+      // El rol queda en el registro de la organización aunque Auth no acepte el identificador local.
+    }
+  }
+  revalidatePath("/usuarios");
+  revalidatePath("/dashboard");
+}
+
 export async function createTeam(formData: FormData) {
   const session = await requireSession();
   if (!canManageConfiguration(session.role!)) throw new Error("Sin permiso.");

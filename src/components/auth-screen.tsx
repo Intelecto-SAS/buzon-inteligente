@@ -14,7 +14,7 @@ export function AuthScreen({ title, subtitle, children, footer }: { title: strin
         </div>
         <ul className="relative space-y-3 text-sm text-white/90">
           <li>Bandeja con motivo de clasificación y prioridad.</li>
-          <li>Casos con responsable, vencimiento y trazabilidad.</li>
+          <li>Tareas con responsable, vencimiento y trazabilidad.</li>
           <li>Alertas de tutelas, desacatos y plazos vencidos.</li>
         </ul>
       </section>

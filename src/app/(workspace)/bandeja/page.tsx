@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { categories, inboxMessages, tabCounts } from "@/lib/queries";
 import { createUserClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import { humanize } from "@/lib/labels";
 import { saveView } from "@/server/actions";
 
 export default async function InboxPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -99,13 +100,13 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
                   const mailbox = row.mailboxes as { display_name?: string } | null;
                   return (
                     <tr key={row.id}>
-                      <td>{row.priority ? <Badge tone={row.priority === "critica" ? "danger" : row.priority === "alta" ? "warning" : "neutral"}>{row.priority}</Badge> : "—"}</td>
+                      <td>{row.priority ? <Badge tone={row.priority === "critica" ? "danger" : row.priority === "alta" ? "warning" : "neutral"}>{humanize(row.priority)}</Badge> : "—"}</td>
                       <td>{readIds.has(row.id) ? "Leído" : "Nuevo"}</td>
                       <td>{row.from_name || row.from_address}</td>
                       <td><Link className="font-semibold text-ink" href={`/bandeja/${row.id}`}>{row.subject}</Link><p className="text-faint">{row.snippet}</p></td>
                       <td>{category?.name || "Sin clasificar"}</td>
                       <td>{mailbox?.display_name}</td>
-                      <td>{row.management_status}</td>
+                      <td>{humanize(row.management_status)}</td>
                       <td>{new Date(row.received_at).toLocaleString("es-CO", { timeZone: session.timezone })}</td>
                       <td>{row.due_status === "confirmed" && row.due_at ? new Date(row.due_at).toLocaleString("es-CO", { timeZone: session.timezone }) : "Pendiente de validación"}</td>
                     </tr>

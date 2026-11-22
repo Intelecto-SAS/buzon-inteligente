@@ -6,7 +6,7 @@ type Row = Record<string, unknown>;
 type Tables = Record<string, Row[]>;
 
 const FILE = path.join(process.cwd(), ".data", "workspace.json");
-const VERSION = 2;
+const VERSION = 3;
 
 const ONE: Record<string, Record<string, string>> = {
   messages: { categories: "category_id", mailboxes: "mailbox_id" },
