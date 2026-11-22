@@ -4,6 +4,7 @@ import { createUserClient } from "@/lib/supabase/server";
 import { canMutateModule } from "@/lib/security/permissions";
 import { notFound } from "next/navigation";
 import { Button, Field, inputClass } from "@/components/ui";
+import { humanize } from "@/lib/labels";
 
 export default async function CaseDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,7 +19,7 @@ export default async function CaseDetail({ params }: { params: Promise<{ id: str
       <div>
         <h1 className="text-2xl font-bold">{item.public_code}</h1>
         <p className="text-sm text-muted">{item.subject}</p>
-        <p className="mt-2 text-sm">Estado {item.status} · prioridad {item.priority} · plazo legal {item.due_status === "confirmed" ? item.due_at : "pendiente de validación humana"}</p>
+        <p className="mt-2 text-sm">Estado {humanize(item.status)} · Prioridad {humanize(item.priority)} · Plazo legal {item.due_status === "confirmed" ? item.due_at : "Pendiente de validación humana"}</p>
         <section className="mt-4 rounded-container border border-line bg-white p-4">
           <h2 className="text-sm font-semibold">Notas internas</h2>
           <ul className="mt-2 space-y-2 text-sm">{(item.case_notes as { id: string; body: string }[]).map((note) => <li key={note.id}>{note.body}</li>)}</ul>
@@ -32,7 +33,7 @@ export default async function CaseDetail({ params }: { params: Promise<{ id: str
         </section>
         <section className="mt-4 rounded-container border border-line bg-white p-4 text-sm">
           <h2 className="font-semibold">Historial de estados</h2>
-          <ul className="mt-2">{(item.case_transitions as { from_status: string; to_status: string; reason: string; created_at: string }[]).map((row, index) => <li key={index}>{row.from_status || "—"} → {row.to_status}. {row.reason}</li>)}</ul>
+          <ul className="mt-2">{(item.case_transitions as { from_status: string; to_status: string; reason: string; created_at: string }[]).map((row, index) => <li key={index}>{humanize(row.from_status)} → {humanize(row.to_status)}. {row.reason}</li>)}</ul>
         </section>
       </div>
       {editable ? (
@@ -56,7 +57,7 @@ export default async function CaseDetail({ params }: { params: Promise<{ id: str
           </form>
           <form action={transitionCase} className="rounded-container border border-line bg-white p-4 text-sm">
             <input type="hidden" name="caseId" value={item.id} />
-            <Field label="Nuevo estado"><select className={inputClass} name="to"><option>en_gestion</option><option>pendiente_informacion</option><option>pendiente_aprobacion</option><option>respondido</option><option>cerrado</option><option>reabierto</option></select></Field>
+            <Field label="Nuevo estado"><select className={inputClass} name="to"><option value="en_gestion">En gestión</option><option value="pendiente_informacion">Pendiente de información</option><option value="pendiente_aprobacion">Pendiente de aprobación</option><option value="respondido">Respondido</option><option value="cerrado">Cerrado</option><option value="reabierto">Reabierto</option></select></Field>
             <Field label="Motivo"><input className={inputClass} name="reason" /></Field>
             <Button className="mt-2" variant="secondary" type="submit">Registrar transición</Button>
           </form>
@@ -70,7 +71,7 @@ export default async function CaseDetail({ params }: { params: Promise<{ id: str
           {(item.drafts as { id: string; subject: string; status: string }[]).map((draft) => (
             <form key={draft.id} action={decideApproval} className="rounded-container border border-line bg-white p-4 text-sm">
               <input type="hidden" name="draftId" value={draft.id} />
-              <p>{draft.subject} · {draft.status}</p>
+              <p>{draft.subject} · {humanize(draft.status)}</p>
               {session.role === "administrador" || session.role === "supervisor" ? (
                 <div className="mt-2 flex gap-2">
                   <button className="h-9 rounded-control bg-primary px-3 text-white" name="status" value="approved" type="submit">Aprobar</button>
@@ -80,7 +81,7 @@ export default async function CaseDetail({ params }: { params: Promise<{ id: str
             </form>
           ))}
         </div>
-      ) : <p className="text-sm text-muted">Su rol consulta el caso y no modifica la operación.</p>}
+      ) : <p className="text-sm text-muted">Su rol consulta la tarea y no modifica la operación.</p>}
     </div>
   );
 }

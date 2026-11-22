@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { createUserClient } from "@/lib/supabase/server";
 import { EmptyState, PageHeader } from "@/components/ui";
 import Link from "next/link";
+import { humanize } from "@/lib/labels";
 
 export default async function AlertsPage() {
   const session = await getSession();
@@ -18,8 +19,8 @@ export default async function AlertsPage() {
             <li key={alert.id} className="rounded-container border border-line bg-white p-4 text-sm">
               <p className="font-semibold">{alert.title}</p>
               <p className="text-muted">{alert.body}</p>
-              <p className="text-xs text-faint">{alert.kind} · {alert.severity} · {alert.status}</p>
-              {alert.case_id ? <Link className="text-primary" href={`/casos/${alert.case_id}`}>Abrir caso</Link> : null}
+              <p className="text-xs text-faint">{humanize(alert.kind)} · {humanize(alert.severity)} · {humanize(alert.status)}</p>
+              {alert.case_id ? <Link className="text-primary" href={`/casos/${alert.case_id}`}>Abrir tarea</Link> : null}
               {alert.status === "open" ? <form action={acknowledgeAlert.bind(null, alert.id)}><button className="mt-2 text-sm text-primary" type="submit">Confirmar lectura</button></form> : null}
             </li>
           ))}

@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/session";
 import { createUserClient } from "@/lib/supabase/server";
 import { EmptyState, PageHeader } from "@/components/ui";
+import { humanize } from "@/lib/labels";
 
 export default async function ReportsPage() {
   const session = await getSession();
@@ -12,8 +13,8 @@ export default async function ReportsPage() {
   for (const row of rows) byStatus.set(row.status, (byStatus.get(row.status) || 0) + 1);
   return (
     <div>
-      <PageHeader title="Reportes" description="Conteos de casos, sin duplicar por cada correo asociado." />
-      <ul className="text-sm">{[...byStatus.entries()].map(([status, count]) => <li key={status}>{status}: {count}</li>)}</ul>
+      <PageHeader title="Reportes" description="Conteos de tareas, sin duplicar por cada correo asociado." />
+      <ul className="text-sm">{[...byStatus.entries()].map(([status, count]) => <li key={status}>{humanize(status)}: {count}</li>)}</ul>
     </div>
   );
 }

@@ -1,20 +1,9 @@
 import { Donut, Bars, Metric, Volume, type Slice } from "@/components/dashboard-charts";
+import { humanize } from "@/lib/labels";
 import { EmptyState, PageHeader } from "@/components/ui";
 import { getSession } from "@/lib/session";
 import { createUserClient } from "@/lib/supabase/server";
 import Link from "next/link";
-
-const STATUS_LABEL: Record<string, string> = {
-  sin_asignar: "Sin asignar",
-  asignado: "Asignado",
-  en_gestion: "En gestión",
-  pendiente_informacion: "Pendiente de información",
-  pendiente_aprobacion: "Pendiente de aprobación",
-  respondido: "Respondido",
-  cerrado: "Cerrado",
-  pendiente_clasificacion: "Sin clasificar",
-  recibido: "Recibido",
-};
 
 const STATUS_COLOR: Record<string, string> = {
   sin_asignar: "#B91C1C",
@@ -98,7 +87,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       return acc;
     }, {}),
   )
-    .map(([status, value]) => ({ label: STATUS_LABEL[status] || status, value, color: STATUS_COLOR[status] || "#71717A" }))
+    .map(([status, value]) => ({ label: humanize(status), value, color: STATUS_COLOR[status] || "#71717A" }))
     .sort((a, b) => b.value - a.value);
 
   const categorySlices: Slice[] = [...caseRows.reduce<Map<string, number>>((acc, item) => {
@@ -138,24 +127,24 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <button className="h-10 rounded-lg bg-primary px-4 font-semibold text-white" type="submit">Actualizar periodo</button>
       </form>
       {rows.length === 0 && caseRows.length === 0 ? (
-        <EmptyState title="Sin comunicaciones en el periodo" body="Los indicadores aparecen cuando el buzón tiene correos o casos en el rango elegido." action={<Link className="text-sm font-semibold text-primary" href="/bandeja">Ir a la bandeja</Link>} />
+        <EmptyState title="Sin comunicaciones en el periodo" body="Los indicadores aparecen cuando el buzón tiene correos o tareas en el rango elegido." action={<Link className="text-sm font-semibold text-primary" href="/bandeja">Ir a la bandeja</Link>} />
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Metric label="Casos abiertos" value={String(open.length)} hint={`${critical.length} en prioridad crítica`} tone="primary" href="/casos" />
+            <Metric label="Tareas abiertas" value={String(open.length)} hint={`${critical.length} en prioridad crítica`} tone="primary" href="/casos" />
             <Metric label="Vencidos" value={String(overdue.length)} hint={`${dueSoon.length} vencen en las próximas 48 h`} tone="danger" href="/casos?vencimiento=vencido" />
             <Metric label="Sin responsable" value={String(unassigned.length)} hint="Quedaron fuera de cupo o de disponibilidad" tone="warning" href="/casos?sinAsignar=1" />
             <Metric label="Dentro del plazo" value={onTimePct === null ? "—" : `${onTimePct} %`} hint={avgFirst === null ? "Sin primera atención registrada" : `Primera atención promedio: ${avgFirst} h. Solo plazos confirmados.`} tone="success" href="/casos" />
           </div>
           <Volume title="Entrada de comunicaciones" points={points} />
           <div className="grid gap-4 xl:grid-cols-2">
-            <Donut title="Estado de los casos" subtitle="Dónde está detenido el trabajo del periodo completo, no solo del filtro de fechas." slices={statusSlices} />
+            <Donut title="Estado de las tareas" subtitle="Dónde está detenido el trabajo, no solo en el filtro de fechas." slices={statusSlices} />
             <Bars title="Riesgo operativo" subtitle="Los plazos legales sin confirmación no se cuentan como vencidos." slices={riskSlices} />
             <Bars title="Carga por categoría" subtitle="Tutelas y notificaciones concentran el riesgo jurídico." slices={categorySlices} />
             <Bars title="Prioridad de lo abierto" subtitle="La crítica sale de la política de la categoría, no de un umbral inventado." slices={prioritySlices} />
           </div>
           <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-            <Bars title="Carga por responsable" subtitle="Casos que todavía no están respondidos ni cerrados." slices={loadSlices} />
+            <Bars title="Carga por responsable" subtitle="Tareas que todavía no están respondidas ni cerradas." slices={loadSlices} />
             <section className="rounded-2xl border border-line bg-white p-5 shadow-float">
               <h2 className="text-sm font-semibold">Clasificación del periodo</h2>
               <p className="mt-1 text-xs text-faint">De {rows.length} correos recibidos desde el filtro.</p>

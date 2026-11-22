@@ -23,6 +23,13 @@ async function connectedClient() {
   });
 }
 
+export async function createAuthClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return createLocalClient() as unknown as Awaited<ReturnType<typeof connectedClient>>;
+  return connectedClient();
+}
+
 export async function createUserClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

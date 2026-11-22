@@ -89,3 +89,10 @@ table.data tr:hover td { background: #f3f4f6; }
   box-shadow: 0 4px 12px rgba(24, 24, 27, 0.06);
 }
 .shell-nav.open { transform: none; }
+.shell-nav.pinned {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  transform: none;
+  box-shadow: none;
+}

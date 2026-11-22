@@ -35,7 +35,7 @@ export function Donut({ title, subtitle, slices }: { title: string; subtitle: st
             return node;
           })}
           <text x="80" y="76" textAnchor="middle" className="fill-ink" fontSize="22" fontWeight="700">{slices.reduce((sum, slice) => sum + slice.value, 0)}</text>
-          <text x="80" y="94" textAnchor="middle" className="fill-muted" fontSize="10">casos</text>
+          <text x="80" y="94" textAnchor="middle" className="fill-muted" fontSize="10">tareas</text>
         </svg>
         <ul className="min-w-[180px] flex-1 space-y-2 text-sm">
           {slices.map((slice) => (
@@ -85,9 +85,9 @@ export function Volume({ title, points }: { title: string; points: { label: stri
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 className="text-sm font-semibold">{title}</h2>
-          <p className="mt-1 text-xs text-faint">La parte burdeos es el total del día. La parte roja son comunicaciones críticas.</p>
+          <p className="mt-1 text-xs text-faint">El azul es el total del día. El ámbar son comunicaciones críticas.</p>
         </div>
-        <p className="text-xs text-muted"><span className="mr-2 inline-block h-2 w-2 rounded-full bg-primary" />Total <span className="ml-3 mr-2 inline-block h-2 w-2 rounded-full bg-danger" />Críticas</p>
+        <p className="text-xs text-muted"><span className="mr-2 inline-block h-2 w-2 rounded-full bg-info" />Total <span className="ml-3 mr-2 inline-block h-2 w-2 rounded-full bg-[#F59E0B]" />Críticas</p>
       </div>
       <svg viewBox={`0 0 ${w} ${h + 28}`} className="mt-3 w-full" role="img" aria-label={title}>
         {[0.25, 0.5, 0.75, 1].map((step) => (
@@ -101,10 +101,10 @@ export function Volume({ title, points }: { title: string; points: { label: stri
           const showLabel = points.length <= 10 || index % 2 === 0;
           return (
             <g key={`${point.label}-${index}`}>
-              <rect x={x} y={h - height} width={width} height={height} rx="3" fill="#962D46" opacity="0.9">
+              <rect x={x} y={h - height} width={width} height={height} rx="3" fill="#1D4ED8">
                 <title>{`${point.label}: ${point.value} correos, ${point.critical} críticos`}</title>
               </rect>
-              <rect x={x} y={h - critical} width={width} height={critical} rx="3" fill="#B91C1C" />
+              <rect x={x} y={h - critical} width={width} height={critical} rx="3" fill="#F59E0B" />
               {showLabel ? <text x={x + width / 2} y={h + 16} textAnchor="middle" fontSize="10" fill="#71717A">{point.label}</text> : null}
             </g>
           );

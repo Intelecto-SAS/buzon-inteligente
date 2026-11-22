@@ -1,4 +1,5 @@
 import { Badge, EmptyState, PageHeader, Panel } from "@/components/ui";
+import { humanize, TASK_STATUSES } from "@/lib/labels";
 import { getSession } from "@/lib/session";
 import { createUserClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -15,11 +16,11 @@ export default async function CasesPage({ searchParams }: { searchParams: Promis
   const { data, count } = await query.range(page * 25, page * 25 + 24);
   return (
     <div>
-      <PageHeader title="Gestión de casos" description="Un caso agrupa comunicaciones, notas y respuestas. No se cierra por un acuse." />
+      <PageHeader title="Tareas" description="Una tarea agrupa comunicaciones, notas y respuestas. No se cierra por un acuse." />
       <form className="mb-3 flex flex-wrap gap-2" method="get">
         <select className="h-9 rounded-control border border-line px-2 text-sm" name="estado" defaultValue={params.estado || ""}>
           <option value="">Estado</option>
-          {["recibido", "pendiente_clasificacion", "sin_asignar", "asignado", "en_gestion", "pendiente_informacion", "pendiente_aprobacion", "respondido", "cerrado", "reabierto"].map((item) => <option key={item}>{item}</option>)}
+          {TASK_STATUSES.map((item) => <option key={item} value={item}>{humanize(item)}</option>)}
         </select>
         <select className="h-9 rounded-control border border-line px-2 text-sm" name="prioridad" defaultValue={params.prioridad || ""}>
           <option value="">Prioridad</option>
@@ -30,7 +31,7 @@ export default async function CasesPage({ searchParams }: { searchParams: Promis
         </select>
         <button className="h-9 rounded-control bg-primary px-3 text-sm text-white" type="submit">Filtrar</button>
       </form>
-      {(data || []).length === 0 ? <EmptyState title="No hay casos" body="Los casos se abren al procesar una comunicación real o desde una regla que los cree." /> : (
+      {(data || []).length === 0 ? <EmptyState title="No hay tareas" body="Las tareas se abren al procesar una comunicación o desde una regla que las cree." /> : (
         <Panel>
           <div className="table-wrap">
             <table className="data">
@@ -41,15 +42,15 @@ export default async function CasesPage({ searchParams }: { searchParams: Promis
                     <td><Link href={`/casos/${item.id}`}>{item.public_code}</Link></td>
                     <td>{item.subject}</td>
                     <td>{(item.categories as { name?: string } | null)?.name || "—"}</td>
-                    <td><Badge tone={item.priority === "critica" ? "danger" : "neutral"}>{item.priority}</Badge></td>
-                    <td>{item.status}</td>
+                    <td><Badge tone={item.priority === "critica" ? "danger" : "neutral"}>{humanize(item.priority)}</Badge></td>
+                    <td>{humanize(item.status)}</td>
                     <td>{item.due_status === "confirmed" && item.due_at ? new Date(item.due_at).toLocaleString("es-CO", { timeZone: session.timezone }) : "Pendiente de validación"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className="px-3 py-2 text-sm text-muted">{count} casos</p>
+          <p className="px-3 py-2 text-sm text-muted">{count} tareas</p>
         </Panel>
       )}
     </div>
