@@ -183,7 +183,7 @@ function supabaseRepository(supabase: SupabaseClient): ProcessRepository {
         })
         .select("id, public_code")
         .single();
-      if (error || !data) throw new Error(error?.message || "No se pudo crear el caso.");
+      if (error || !data) throw new Error(error?.message || "No se pudo crear la tarea.");
       await supabase.from("case_transitions").insert({
         case_id: data.id,
         org_id: input.orgId,

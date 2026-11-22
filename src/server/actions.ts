@@ -280,7 +280,7 @@ export async function transitionCase(formData: FormData) {
   const caseId = String(formData.get("caseId"));
   const to = String(formData.get("to")) as CaseStatus;
   const { data: current } = await supabase!.from("cases").select("status").eq("id", caseId).eq("org_id", session.orgId).single();
-  if (!current) throw new Error("Caso no encontrado.");
+  if (!current) throw new Error("Tarea no encontrada.");
   assertTransition(current.status as CaseStatus, to, session.role!);
   const reason = String(formData.get("reason") || "");
   if (to === "cerrado" && reason.trim().length < 3) throw new Error("El cierre exige un motivo.");

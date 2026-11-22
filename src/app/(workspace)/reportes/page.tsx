@@ -8,7 +8,7 @@ export default async function ReportsPage() {
   const supabase = await createUserClient();
   const { data: cases } = await supabase!.from("cases").select("status, priority, assignee_id, category_id").eq("org_id", session.orgId);
   const rows = cases || [];
-  if (!rows.length) return <div><PageHeader title="Reportes" /><EmptyState title="Sin datos para reportar" body="El reporte se calcula sobre casos reales de la organización." /></div>;
+  if (!rows.length) return <div><PageHeader title="Reportes" /><EmptyState title="Sin datos para reportar" body="El reporte se calcula sobre las tareas de la organización." /></div>;
   const byStatus = new Map<string, number>();
   for (const row of rows) byStatus.set(row.status, (byStatus.get(row.status) || 0) + 1);
   return (

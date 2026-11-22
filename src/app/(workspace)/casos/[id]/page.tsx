@@ -65,7 +65,7 @@ export default async function CaseDetail({ params }: { params: Promise<{ id: str
             <input type="hidden" name="caseId" value={item.id} />
             <input type="hidden" name="sensitive" value={item.sensitive_legal ? "1" : "0"} />
             <Field label="Asunto"><input className={inputClass} name="subject" defaultValue={`Re: ${item.subject}`} /></Field>
-            <Field label="Cuerpo" hint="Variables: {{remitente}} {{asunto}} {{codigo_caso}} {{categoria}} {{organizacion}}"><textarea className="min-h-24 w-full rounded-control border border-line p-2" name="body" /></Field>
+            <Field label="Cuerpo" hint="Variables: {{remitente}} {{asunto}} {{codigo_tarea}} {{categoria}} {{organizacion}}"><textarea className="min-h-24 w-full rounded-control border border-line p-2" name="body" /></Field>
             <Button className="mt-2" type="submit">{item.sensitive_legal ? "Enviar a aprobación" : "Guardar borrador"}</Button>
           </form>
           {(item.drafts as { id: string; subject: string; status: string }[]).map((draft) => (
